@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Manager Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Banner -->
+    <div class="top-banner">
+        <h1>Fleet Manager Agent Chat</h1>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="nav-item">
+            <img src="images/dashboard-icon.svg" alt="Dashboard" class="nav-icon">
+            <a href="/">Dashboard</a>
+        </div>
+        <div class="nav-item">
+            <img src="images/alerts-icon.svg" alt="Alerts" class="nav-icon">
+            <a href="/#alerts">Alerts</a>
+        </div>
+        <div class="nav-item">
+            <img src="images/vehicles-icon.svg" alt="Vehicles" class="nav-icon">
+            <a href="/#vehicles">Vehicles</a>
+        </div>
+        <div class="nav-item">
+            <img src="images/agent-icon.svg" alt="Agent" class="nav-icon">
+            <a href="https://accounts.google.com/o/oauth2/v2/auth?
+ scope=https%3A//www.googleapis.com/auth/cloud-platform&
+ access_type=offline&
+ include_granted_scopes=true&
+ response_type=code&
+ state=state_parameter_passthrough_value&
+ redirect_uri=https%3A//us-central1-aiplatform.googleapis.com/v1/projects/hacker2025-team-26-dev/locations/us-central1/reasoningEngines/875220051802718208:query&
+ client_id=533759334958-e943ac8lmfb0d9f205dqavf9edrcv10n.apps.googleusercontent.com">Talk to Agent</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+
+
+        <section id="embed" class="cars-section">
+            <h2>Upload car data for the agent.</h2>
+            <p> If the window below doesn't work, select "Agent" from the menu bar</p>
+            <div th:text="${user.prompt}">
+            </div>
+            <form id="chat-to-agent" method="post" action="/chat">
+                <textarea id="user-input" name="userInput" placeholder="Type your message here..."></textarea>
+                <input type="submit"/>
+            </form>
+            <p th:text="${user.body}">Waiting for response...</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Portfolio. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

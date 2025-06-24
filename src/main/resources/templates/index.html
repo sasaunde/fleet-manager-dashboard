@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Manager Dashboard</title>
+    <link rel="stylesheet" th:href="@{/styles.css}" href="styles.css">
+</head>
+<body>
+    <!-- Top Banner -->
+    <header class="top-banner">
+        <h1>Fleet Manager Dashboard</h1>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <ul>
+            <div class="nav-item">
+            <img th:src="@{images/dashboard-icon.svg}" alt="Dashboard" class="nav-icon">
+            <a href="#dashboard">Dashboard</a>
+        </div>
+            <div class="nav-item">
+                <img th:src="@{images/alerts-icon.svg}" alt="Alerts" class="nav-icon">
+                <a href="#alerts">Alerts</a>
+            </div>
+            <div class="nav-item">
+                <img th:src="@{images/vehicles-icon.svg}" alt="Vehicles" class="nav-icon">
+                <a href="#vehicles">Vehicles</a>
+            </div>
+            <div class="nav-item">
+                <img th:src="@{images/agent-icon.svg}" alt="Agent" class="nav-icon">
+                <a href="/agent">Talk to Agent</a>
+            </div>
+        </ul>
+    </nav>
+
+    <main class="dashboard-content">
+        <!-- Cars Table -->
+        <section class="cars-section">
+            <h2>List of Cars</h2>
+            <table class="cars-table">
+                <thead>
+                    <tr>
+                        <th>Make</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Battery Status</th>
+                        <th>Mileage</th>
+                        <th>Failure Probability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="car : ${cars}"
+                        th:data-licenseplate="${car.licensePlate}"
+                        onclick="selectCar(this.getAttribute('data-licenseplate'))">
+                        <td th:text="${car.make}">Toyota</td>
+                        <td th:text="${car.model}">Camry</td>
+                        <td th:text="${car.year}">2022</td>
+                        <td th:text="${car.fuelLevel}">Low</td>
+                        <td th:text="${car.mileage}">6788</td>
+                        <td th:text="${car.maintenance}">90% chance of failure</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Right Panel -->
+        <aside class="right-panel">
+            <!-- Alerts -->
+            <section class="alerts-section">
+                <h3>Alerts</h3>
+                <div class="alert-list">
+                    <div class="alert-item">
+                        <span class="alert-icon">⚠️</span>
+                        <span class="alert-text">Regular maintenance due for ABC123</span>
+                    </div>
+                    <div class="alert-item">
+                        <span class="alert-icon">⚠️</span>
+                        <span class="alert-text">Low Battery SoH for MM76 654</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Selected Car Details -->
+            <section class="car-details-section">
+                <h3>Selected Car Details</h3>
+                <div class="car-info" id="carDetails">
+                    <p>License Plate: <span id="licensePlate">-</span></p>
+                    <p>Make & Model: <span id="makeModel">-</span></p>
+                    <p>Mileage: <span id="mileage">-</span> km</p>
+                    <p>Fuel Level: <span id="fuelLevel">-</span>%</p>
+                    <p>Last Service: <span id="lastService">-</span></p>
+                    <p>Service Due: <span id="serviceDue">-</span></p>
+                    <p>Maintenance Needed: <span id="maintenance">-</span></p>
+                </div>
+                    <div class="detail-item">
+                        <span class="label">Maintenance Needed:</span>
+                        <span class="value" th:text="${car?.maintenance}">None</span>
+                    </div>
+                </section>
+            </section>
+        </aside>
+    </main>
+
+    <script th:src="@{/script.js}"></script>
+
+    <footer>
+        <p>&copy; 2025 Portfolio. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
