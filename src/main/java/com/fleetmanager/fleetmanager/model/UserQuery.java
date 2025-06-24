@@ -1,14 +1,21 @@
 package com.fleetmanager.fleetmanager.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class UserQuery {
 
   private final String prompt;
 
-  private String body;
+  private List<String> responses = new ArrayList<>();
 
-  public UserQuery(String prompt, String body) {
+  private List<String> actions = new ArrayList<>();
+
+  public UserQuery(String prompt,  List<String> body) {
     this.prompt = prompt;
-    this.body = body;
+    this.responses = body;
   }
 
   public UserQuery(String prompt) {
@@ -19,10 +26,24 @@ public class UserQuery {
     return prompt;
   }
 
-  public String getBody() {
-    return body;
+  public void addAction(String action) {
+    this.actions.add(action);
   }
-  public void setBody(String body) {
-    this.body = body;
+
+  public List<String> getActions() {
+    return actions;
+  }
+  public  List<String> getResponses() {
+    return responses;
+  }
+  public void setResponse(String body) {
+
+    List<String> tmpList = new ArrayList<>(this.responses);
+    tmpList.add(body);
+    this.responses = Collections.unmodifiableList(tmpList);
+  }
+
+  public void setResponses(List<String> responses) {
+    this.responses = responses;
   }
 }

@@ -41,6 +41,7 @@
             <table class="cars-table">
                 <thead>
                     <tr>
+                        <th>Vehicle ID</th>
                         <th>Make</th>
                         <th>Model</th>
                         <th>Year</th>
@@ -53,6 +54,7 @@
                     <tr th:each="car : ${cars}"
                         th:data-licenseplate="${car.licensePlate}"
                         onclick="selectCar(this.getAttribute('data-licenseplate'))">
+                        <td th:text="${car.licensePlate}">ABC123</td>
                         <td th:text="${car.make}">Toyota</td>
                         <td th:text="${car.model}">Camry</td>
                         <td th:text="${car.year}">2022</td>

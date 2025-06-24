@@ -53,7 +53,7 @@ public class CarController {
                                 + "hacker2025-team-26-dev.EV_Predictive_Maintenance.VEHICLE V\n"
                                 + "LEFT JOIN hacker2025-team-26-dev.EV_Predictive_Maintenance.PM\n"
                                 + "ON PM.Vehicle_ID = V.Vehicle_ID\n"
-                                + " LIMIT 5")
+                                + " LIMIT 50")
                         // Use standard SQL syntax for queries.
                         // See: https://cloud.google.com/bigquery/sql-reference/
                         .setUseLegacySql(false)
@@ -84,19 +84,44 @@ public class CarController {
 
                 for (FieldValueList row : result.iterateAll()) {
                     System.out.println("Turning " + row + " into a car");
-                    Car car = new Car(
-                        row.get("Vehicle_ID").getStringValue(),
-                        row.get("Make").getStringValue(),
-                        row.get("Model").getStringValue(),
-                        row.get("Model_Year").getNumericValue().intValue(),
-                        row.get("Distance_Traveled") != null ? row.get("Distance_Traveled").getNumericValue().intValue() : 0, // Placeholder for mileage
-                        row.get("Battery_Voltage") != null ? row.get("Battery_Voltage").getStringValue() : "", // Placeholder for fuel level
-                        "2025-06-10", // Placeholder for next service date
-                        row.get("SoH") != null ? row.get("SoH").getStringValue() : "", // Placeholder for condition
-                        false, // Placeholder for recall status
-                        row.get("Failure_Probability") != null ? row.get("Failure_Probability").getStringValue()+" % chance of failure" : "" // Placeholder for issues
-                    );
-                    cars.put(car.getLicensePlate(), car);
+                    try {
+                        Car car = new Car(
+                            row.get("Vehicle_ID").getStringValue(),
+                            row.get("Make").getStringValue(),
+                            row.get("Model").getStringValue(),
+                            row.get("Model_Year").getNumericValue().intValue(),
+                            row.get("Distance_Traveled").getNumericValue().intValue(), // Placeholder for mileage
+                            row.get("Battery_Voltage").getStringValue(), // Placeholder for fuel level
+                            "2025-06-10", // Placeholder for next service date
+                            row.get("SoH").getStringValue(),
+                            // Placeholder for condition
+                            false, // Placeholder for recall status
+                            row.get("Failure_Probability").getStringValue()
+                                    + " % chance of failure" // Placeholder for issues
+                        );
+                        cars.put(car.getLicensePlate(), car);
+                    } catch (Exception e) {
+                        System.out.println("Got error, will create without NPE");
+                        try {
+                            Car car = new Car(
+                                row.get("Vehicle_ID").getStringValue(),
+                                row.get("Make").getStringValue(),
+                                row.get("Model").getStringValue(),
+                                row.get("Model_Year").getNumericValue().intValue(),
+                                0, // Placeholder for mileage
+                                "", // Placeholder for fuel level
+                                "2025-06-10", // Placeholder for next service date
+                                "",
+                                // Placeholder for condition
+                                false, // Placeholder for recall status
+                                "" // Placeholder for issues
+                            );
+                            cars.put(car.getLicensePlate(), car);
+                        } catch (Exception e2) {
+                            System.out.println("Got error again, will skip this row");
+                            e2.printStackTrace();
+                        }
+                    }
                 }
 
             } catch (Exception e) {
@@ -106,7 +131,7 @@ public class CarController {
         }
     }
 
-    private String search(String query) throws IOException {
+    private void performAgentCall(String query, UserQuery userQuery) throws IOException {
 
         try {
             GoogleCredentials googleCredentials = GoogleCredentials.getApplicationDefault();
@@ -134,23 +159,43 @@ public class CarController {
 
             String responseStr = response.parseAsString();
             System.out.println("Got " + responseStr + " back from agent");
-            Gson gson = new GsonBuilder().setLenient().create();
-            AgentResponse agentResponse = gson.fromJson(responseStr, AgentResponse.class);
-            return agentResponse.getAgentResponse();
+            String [] allResponses = responseStr.split("\n");
+            System.out.println("Split, that is " + allResponses.length + " responses");
+
+                Gson gson = new GsonBuilder().setLenient().create();
+                AgentResponse agentResponse = gson.fromJson(allResponses[0], AgentResponse.class);
+                userQuery.setResponses(agentResponse.getAgentResponses());
+
+            if (allResponses.length > 1) {
+
+                for (int i = 1; i < allResponses.length; i++) {
+                    try {
+                        AgentResponse agentResponse1 = gson.fromJson(allResponses[i],
+                            AgentResponse.class);
+                        agentResponse1.getAgentResponses().forEach(resp -> userQuery.setResponse(resp));
+                    } catch (Exception e3) {
+                        e3.printStackTrace();
+                    }
+                    System.out.println("Adding action " + allResponses[i]);
+                    userQuery.addAction(allResponses[i]);
+                }
+            } else {
+                System.out.println("No actions found in response");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return e.toString();
+            userQuery.setResponse(e.toString());
         }
     }
 
-    private String getAgentUrl(String query) {
+    private void agentCall(String query, UserQuery userQuery) {
         try {
 
-               return search(query);
+               performAgentCall(query, userQuery);
 
         } catch (IOException e) {
-            return "Error querying agent: " + e.getMessage();
+            userQuery.setResponse("Error querying agent: " + e.getMessage());
 
         }
     }
@@ -181,8 +226,8 @@ public class CarController {
             userQuery = new UserQuery("What do you want to ask today");
         }
 
-        String agentResponse = getAgentUrl(userInput);
-        userQuery.setBody(agentResponse);
+        agentCall(userInput, userQuery);
+
 
         model.addAttribute("user", userQuery);
         return "agentchat";

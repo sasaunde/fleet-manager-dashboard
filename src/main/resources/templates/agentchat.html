@@ -48,11 +48,15 @@
             <p> If the window below doesn't work, select "Agent" from the menu bar</p>
             <div th:text="${user.prompt}">
             </div>
+            <div th:each="action : ${user.responses}" id="chat-response">
+                <div th:text="${action}"></div>
+            </div>
             <form id="chat-to-agent" method="post" action="/chat">
-                <textarea id="user-input" name="userInput" placeholder="Type your message here..."></textarea>
+                <textarea cols="40" rows="10" id="user-input" name="userInput" placeholder="Type your message here..."></textarea>
                 <input type="submit"/>
             </form>
-            <p th:text="${user.body}">Waiting for response...</p>
+
+
         </section>
     </main>
 
